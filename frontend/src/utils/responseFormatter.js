@@ -4,24 +4,37 @@
  * @returns {Object} 포맷팅된 응답 데이터
  */
 export const formatResponse = (response) => {
-  if (!response || !response.data || !response.data[0]) {
-    return {
-      response: '응답 데이터가 없습니다.',
-      links: []
-    };
+  console.log('원본 응답:', response);
+  
+  // axios 응답에서 data 필드의 내용만 추출
+  let data = response.data || response;
+  // data 타입이 array인 경우 첫 번째 요소를 사용
+  if (Array.isArray(data)) {
+    data = data[0];
   }
 
-  const result = response.data[0];
+  console.log('data 필드:', data);
+  
+  if (!data || !data.response) {
+    console.log('데이터 없음');
+    return {
+      response: '응답 데이터가 없습니다.',
+      link: []
+    };
+  }
   
   // response가 객체이고 text 필드가 있는 경우 text 필드를 사용
-  const responseText = result.response && typeof result.response === 'object' && 'text' in result.response
-    ? result.response.text
-    : result.response;
+  const responseText = data.response && typeof data.response === 'object' && 'text' in data.response
+    ? data.response.text
+    : data.response;
   
-  return {
+  const result = {
     response: responseText || '응답 텍스트가 없습니다.',
-    links: result.link || []
+    link: data.link || []
   };
+  
+  console.log('처리된 결과:', result);
+  return result;
 };
 
 /**

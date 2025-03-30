@@ -3,6 +3,39 @@ import os
 import json
 from models.search import SearchResults, SearchResult
 
+
+def search_google(query: str) -> str:
+    """
+    Google 검색을 수행하여 관련 URL들을 반환합니다.
+    
+    Args:
+        query (str): 검색어
+        
+    Returns:
+        str: JSON 형식의 검색 결과 목록
+    """
+    params = {
+        "api_key": os.getenv("SERPAPI_API_KEY"),
+        "engine": "google",
+        "q": query,
+        "num": 8
+    }
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    
+    if "organic_results" in results:
+        search_results = []
+        for result in results["organic_results"][:8]:
+            search_results.append(SearchResult(
+                title=result.get("title", ""),
+                url=result.get("link", "")
+            ))
+        return SearchResults(results=search_results).model_dump_json()
+    return SearchResults(results=[]).model_dump_json() 
+
+
+
+
 # 테스트 데이터
 TEST_SEARCH_RESULTS = {
     "results": [
@@ -35,32 +68,3 @@ def test_search_google(query: str) -> str:
             url=f"https://example.com/search/{query}/{i+1}"
         ))
     return SearchResults(results=search_results).model_dump_json()
-
-def search_google(query: str) -> str:
-    """
-    Google 검색을 수행하여 관련 URL들을 반환합니다.
-    
-    Args:
-        query (str): 검색어
-        
-    Returns:
-        str: JSON 형식의 검색 결과 목록
-    """
-    params = {
-        "api_key": os.getenv("SERPAPI_API_KEY"),
-        "engine": "google",
-        "q": query,
-        "num": 8
-    }
-    search = GoogleSearch(params)
-    results = search.get_dict()
-    
-    if "organic_results" in results:
-        search_results = []
-        for result in results["organic_results"][:8]:
-            search_results.append(SearchResult(
-                title=result.get("title", ""),
-                url=result.get("link", "")
-            ))
-        return SearchResults(results=search_results).model_dump_json()
-    return SearchResults(results=[]).model_dump_json() 

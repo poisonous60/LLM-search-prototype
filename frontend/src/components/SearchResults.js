@@ -65,10 +65,10 @@ function SearchResults({ results, loading, error, onDelete }) {
                 <ReactMarkdown>{result.response}</ReactMarkdown>
               </div>
             )}
-            {activeTab === 'sources' && result.links?.length > 0 && (
+            {activeTab === 'sources' && result.link?.length > 0 && (
               <div className="links">
                 <ul>
-                  {result.links.map((link, linkIndex) => (
+                  {result.link.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <img 
                         src={getFaviconUrl(link.url)} 

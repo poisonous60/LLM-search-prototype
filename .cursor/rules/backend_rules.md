@@ -17,17 +17,17 @@
 
 - 검색 API (`/api/v1/search`) 응답 형식:
   ```python
-  {
-    "data": {
-      "response": str,    # 검색 결과 텍스트
-      "link": [          # 참조 링크 목록
-        {
-          "title": str,  # 링크 제목
-          "url": str     # 링크 URL
-        }
-      ]
+  [
+    {
+        "response": str,    # 검색 결과 텍스트
+        "link": [          # 참조 링크 목록
+          {
+            "title": str,  # 링크 제목
+            "url": str     # 링크 URL
+          }
+        ]
     }
-  }
+  ]
   ```
 
 - HTTP 상태 코드:
