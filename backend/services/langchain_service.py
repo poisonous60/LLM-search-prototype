@@ -4,6 +4,10 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import Tool
 from langchain.output_parsers import PydanticOutputParser
+# from langchain_community.document_loaders import WebBaseLoader
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain_community.vectorstores import FAISS
+# from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from services.search_service import search_google, test_search_google
 from models.search import SearchResults
 import requests
@@ -28,6 +32,46 @@ memory = ConversationBufferMemory(
     memory_key="chat_history",
     return_messages=True
 )
+
+# langchain의 WebBaseLoader를 사용하여 웹 페이지 내용 가져오기
+# 시간 오래 걸려서 주석 처리리
+# def fetch_url_content(urls: List[str]) -> List[str]:
+#     """
+#     URL들의 내용을 WebBaseLoader를 사용하여 가져옵니다.
+    
+#     Args:
+#         urls (List[str]): URL 주소 목록
+        
+#     Returns:
+#         List[str]: 웹페이지 내용 목록
+#     """
+#     try:
+#         # WebBaseLoader로 웹 페이지 내용 로드
+#         loader = WebBaseLoader(urls)
+#         docs = loader.load()
+        
+#         # 문서 분할
+#         text_splitter = RecursiveCharacterTextSplitter(
+#             chunk_size=1000,
+#             chunk_overlap=200,
+#             length_function=len,
+#         )
+#         splits = text_splitter.split_documents(docs)
+        
+#         # 임베딩 생성
+#         embeddings = GoogleGenerativeAIEmbeddings(
+#             model="models/embedding-001",
+#             google_api_key=os.getenv("GOOGLE_API_KEY")
+#         )
+        
+#         # 벡터 저장소 생성
+#         vectorstore = FAISS.from_documents(splits, embeddings)
+        
+#         return [doc.page_content for doc in splits]
+#     except Exception as e:
+#         print(f"URL 내용 가져오기 실패: {urls}")
+#         print(f"에러: {str(e)}")
+#         return []
 
 def fetch_url_content(url: str) -> str:
     """
@@ -247,16 +291,12 @@ def process_query(query: str) -> List[dict]:
         
         # URL 내용 가져오기
         print("\n=== URL 내용 수집 시작 ===")
-        all_content = []
-        results_with_refs = []
-        for result in parsed_results.results:
-            content = fetch_url_content(result.url)
-            if content:
-                all_content.append(content)
-            results_with_refs.append({
-                "title": result.title,
-                "url": result.url
-            })
+        urls = [result.url for result in parsed_results.results]
+        all_content = fetch_url_content(urls)
+        results_with_refs = [{
+            "title": result.title,
+            "url": result.url
+        } for result in parsed_results.results]
         
         # 모든 내용을 기반으로 하나의 답변 생성
         print("\n=== 답변 생성 시작 ===")
